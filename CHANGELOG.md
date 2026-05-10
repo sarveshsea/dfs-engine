@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.3.0 — Coverage + DX
+
+Adds 14 new props across the four built-in sports, runtime input validators, contributor onboarding (CONTRIBUTING.md + examples/), and ESLint/Prettier configs. No breaking changes.
+
+### Added — props
+
+| Sport | New props |
+|---|---|
+| NBA / WNBA / NCAAM / NCAAW | `Pts+Stls`, `Pts+Blks`, `Stls+Blks` (alias `Defensive Stats`), `Double-Double`, `Triple-Double` |
+| NFL | `Longest Reception`, `Longest Rush`, `Longest Pass` |
+| MLB (batter) | `Singles`, `Doubles`, `Triples`, `Runs` |
+| MLB (pitcher) | `Pitching Outs` (IP × 3 with .1 / .2 fractional handling) |
+| NHL | `Plus/Minus` |
+
+`Double-Double` and `Triple-Double` return `1` (achieved) or `0` (not) — books grade them at the standard `0.5` line, so over=achievement, under=missed. The token canonicalizer also learned `stl` and `blk`, so combo aliases like `"Pts+Stl"` and `"PTS+BLK"` resolve via tokenization.
+
+### Added — DX
+
+- **`validatePlayerGameLogEntryShape`** and **`validateDfsBetLeg`** — runtime validators for system-boundary inputs (LLM responses, webhooks, cross-process payloads). Both return `{ ok: true; value: T } | { ok: false; errors: string[] }` with field-level error messages.
+- **`CONTRIBUTING.md`** — worked-example walkthrough for adding props, adding sports, and writing tests.
+- **`examples/`** directory — four copy-paste-runnable scripts covering single-leg grading, full-bet settlement, DNP recompute, and registering a custom sport (Soccer).
+- **ESLint + Prettier** — typescript-eslint recommended rules, opinionated formatter defaults. Scripts: `npm run lint`, `npm run format`, `npm run format:check`. `prepublishOnly` now gates on lint passing.
+
+### Tests
+
+- 281 passing across 14 files (was 232 / 12 in v0.2).
+- New: `tests/v03-new-props.test.ts` (32) and `tests/validators.test.ts` (17).
+
+### Migration notes
+
+No breaking changes. New canonical prop keys are additive on `DfsPropTypeKey` and `DFS_PROP_TYPE_KEYS`; consumers iterating those will see the new entries at the end. New aliases are additive on the normalizer.
+
 ## 0.2.0 — Foundations
 
 This release focuses on accuracy, extensibility, and stronger error
