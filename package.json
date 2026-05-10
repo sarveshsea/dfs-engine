@@ -1,6 +1,6 @@
 {
   "name": "@buzzr/dfs-engine",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Pure-functional DFS prop grading, payouts, and stat normalization for PrizePicks/Underdog-style contests.",
   "license": "MIT",
   "author": "Sarvesh Chidambaram",

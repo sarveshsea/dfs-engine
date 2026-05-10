@@ -1,5 +1,8 @@
 # @buzzr/dfs-engine
 
+[![npm version](https://img.shields.io/npm/v/@buzzr/dfs-engine.svg)](https://www.npmjs.com/package/@buzzr/dfs-engine)
+[![ci](https://github.com/sarveshsea/dfs-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/sarveshsea/dfs-engine/actions/workflows/ci.yml)
+
 Pure-functional **DFS prop grading**, payout math, and stat normalization for PrizePicks- and Underdog-style daily-fantasy contests. Drop-in TypeScript, zero runtime dependencies, ESM + CJS + `.d.ts` shipped.
 
 ```bash
@@ -129,17 +132,68 @@ const result = gradeDfsBetFromGraded({
 
 Pending semantics: if any surviving leg is `legStatus: 'pending'`, the whole bet returns `status: 'pending'` — you can call this every time a leg's `actualValue` updates without risk of premature settlement.
 
+## Add your own sport
+
+Built-in coverage is NBA, WNBA, NCAAM/W, NFL, MLB, NHL. The plugin registry lets you add a sport without forking:
+
+```ts
+import {
+  registerLeague,
+  extractStatForProp,
+  type AdapterTable,
+} from '@buzzr/dfs-engine';
+
+const SOCCER_ADAPTERS: AdapterTable = {
+  Goals: (entry) => parseInt(entry.points, 10) || null,
+  Assists: (entry) => parseInt(entry.rebounds, 10) || null,
+};
+
+registerLeague('EPL', SOCCER_ADAPTERS);
+registerLeague('MLS', SOCCER_ADAPTERS);
+
+extractStatForProp('Goals', 'EPL', someEntry, 'prizepicks'); // your value
+```
+
+`getRegisteredLeagues()` returns the current list; `unregisterLeague(name)` removes one (useful in tests).
+
+## Explained variants for richer error handling
+
+When `null` isn't specific enough, use the `*Explained` variants — they return a discriminated union with a reason code so you can show the user *why* a leg can't be graded yet:
+
+```ts
+import {
+  extractStatForPropExplained,
+  gradeLegFromActualExplained,
+} from '@buzzr/dfs-engine';
+
+const stat = extractStatForPropExplained('Yellow Cards', 'EPL', entry, 'prizepicks');
+if (!stat.ok) {
+  console.log(stat.reason); // 'unknown_prop' | 'unsupported_league' | 'prop_not_supported_for_league' | 'adapter_returned_null'
+  console.log(stat.detail); // human-readable context
+}
+
+const grade = gradeLegFromActualExplained(24.5, 'over', NaN);
+if (!grade.ok) {
+  console.log(grade.reason); // 'pending' | 'unparseable_actual'
+}
+```
+
 ## What's in here
 
 | Module | Highlights |
 |---|---|
 | `payouts` | `lookupStandardMultiplier`, `recalcMultiplierAfterDnp`, `lookupBaseMultiplier` — full PrizePicks (Power/Flex) and Underdog (Standard/Flex) payout schedules |
-| `grading` | `gradeLegFromActual`, `gradeDfsBetFromGraded`, `applyLegDnp`, `computeBoostSplit`, `detectMidGameDnp`, `reconcileMidGameDnpEntries`, `findGameLogCandidates`, `shouldRegradeLeg`, `extractStatForProp` |
+| `grading` | `gradeLegFromActual` (+`Explained`), `gradeDfsBetFromGraded`, `applyLegDnp`, `computeBoostSplit`, `detectMidGameDnp`, `reconcileMidGameDnpEntries`, `findGameLogCandidates`, `shouldRegradeLeg`, `extractStatForProp` (+`Explained`) |
 | `prop-normalizer` | `normalizeDfsPropType`, `asDfsPropTypeKey`, `DFS_PROP_TYPE_KEYS` |
-| `stat-adapters` | `getStatAdapter`, `extractStatForPropViaRegistry`, plus per-sport tables: `BASKETBALL_ADAPTERS`, `NFL_ADAPTERS`, `MLB_ADAPTERS`, `NHL_ADAPTERS` |
-| `types` | `DfsApp`, `DfsPlayType`, `DfsLegStatus`, `DfsBetLeg`, `DfsLegGameContext`, `DfsParseResult`, `LegLinkage`, `DfsPayoutSplit`, …and ~15 more |
+| `stat-adapters` | `getStatAdapter`, `extractStatForPropViaRegistry`, **`registerLeague`** / **`unregisterLeague`** / **`getRegisteredLeagues`**, plus per-sport tables: `BASKETBALL_ADAPTERS`, `NFL_ADAPTERS`, `MLB_ADAPTERS`, `NHL_ADAPTERS` |
+| `reconciliation-windows` | `isWithinReconciliationWindow`, per-league stat-correction TTLs (NBA 2h, NFL 24h, MLB 6h) |
+| `live-helpers` | `shouldWriteLiveActual`, `buildLiveSnapshot`, `buildLiveLegAlertTitle` for live-watcher write-paths |
+| `boxscore-shape` | `boxScorePlayerToGameLogShape` for sources that only ship some stats on the boxscore (NHL Hits, Blocked Shots) |
+| `types` | `DfsApp`, `DfsPlayType`, `DfsLegStatus`, `DfsBetLeg`, `DfsLegGameContext`, `DfsParseResult`, `LegLinkage`, `DfsPayoutSplit`, `BetslipParseMeta`, …and ~15 more |
 
 The `PlayerGameLogEntryShape` the adapters consume is intentionally minimal — define your own gamelog rows that satisfy the shape (`{ date, minutes, points, ... }`) and pipe them in.
+
+See [CHANGELOG.md](./CHANGELOG.md) for what's new in each release.
 
 ## Status & caveats
 
