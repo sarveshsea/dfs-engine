@@ -80,4 +80,12 @@ export const NFL_ADAPTERS: Partial<Record<DfsPropTypeKey, StatAdapter>> = {
   'Rush+Rec TDs': (e) => combo([rushing(e, 'TD'), receiving(e, 'TD')]),
   'Pass+Rush TDs': (e) => combo([passing(e, 'TD'), rushing(e, 'TD')]),
   'Pass+Rush+Rec TDs': (e) => combo([passing(e, 'TD'), rushing(e, 'TD'), receiving(e, 'TD')]),
+  // v0.3 — "longest" yardage props. ESPN ships these on the same per-
+  // category subobject as YDS/CMP/etc, keyed as `LONG`. Returns null if
+  // the category subobject is missing entirely (player didn't accumulate
+  // any plays in that category) — matches the contract for `Receptions`
+  // / `Rush Yards` etc.
+  'Longest Reception': (e) => receiving(e, 'LONG'),
+  'Longest Rush': (e) => rushing(e, 'LONG'),
+  'Longest Pass': (e) => passing(e, 'LONG'),
 };

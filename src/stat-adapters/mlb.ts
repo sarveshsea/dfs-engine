@@ -182,4 +182,23 @@ export const MLB_ADAPTERS: Partial<Record<DfsPropTypeKey, StatAdapter>> = {
   // name the user saw.
   'Hitter FS': computeFantasyScore,
   'Fantasy Score': computeFantasyScore,
+  // v0.3 — batter peripherals from mlbExtras (parser fills these from
+  // ESPN's hits-by-type breakdown; singles are computed as H − 2B − 3B − HR).
+  Singles: batterOnly((e) => numOrNull(e.mlbExtras?.singles)),
+  Doubles: batterOnly((e) => numOrNull(e.mlbExtras?.doubles)),
+  Triples: batterOnly((e) => numOrNull(e.mlbExtras?.triples)),
+  Runs: batterOnly((e) => numOrNull(e.mlbExtras?.runs)),
+  // v0.3 — pitcher Pitching Outs = IP × 3 (a 6.1 IP line resolves to 19
+  // outs). Books shifted to "outs recorded" instead of fractional IP for
+  // cleaner integer lines on PrizePicks; this maps the same source data.
+  'Pitching Outs': pitcherOnly((e) => {
+    const ip = numOrNull(e.rebounds);
+    if (ip == null) return null;
+    // Convert baseball-fractional IP (.1 = 1/3 inning, .2 = 2/3 inning)
+    // into integer outs. Math: floor(IP) × 3 + (frac == .1 ? 1 : .2 ? 2 : 0).
+    const whole = Math.trunc(ip);
+    const frac = Math.round((ip - whole) * 10);
+    if (frac !== 0 && frac !== 1 && frac !== 2) return null;
+    return whole * 3 + frac;
+  }),
 };

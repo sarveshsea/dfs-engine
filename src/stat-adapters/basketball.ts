@@ -39,6 +39,23 @@ function combo(entry: PlayerGameLogEntryShape, fields: Array<keyof PlayerGameLog
   return total;
 }
 
+/**
+ * Count the categories where the player hit double digits. Used by the
+ * Double-Double / Triple-Double adapters. Returns null if any of the
+ * five tracked stats is unparseable — partial data → manual settle.
+ */
+function doubleDigitCategories(entry: PlayerGameLogEntryShape): number | null {
+  const stats = [
+    numOrNull(entry.points),
+    numOrNull(entry.rebounds),
+    numOrNull(entry.assists),
+    numOrNull(entry.steals),
+    numOrNull(entry.blocks),
+  ];
+  if (stats.some((s) => s == null)) return null;
+  return stats.filter((s) => (s as number) >= 10).length;
+}
+
 export const BASKETBALL_ADAPTERS: Partial<Record<DfsPropTypeKey, StatAdapter>> = {
   Points: (e) => numOrNull(e.points),
   Rebounds: (e) => numOrNull(e.rebounds),
@@ -51,4 +68,20 @@ export const BASKETBALL_ADAPTERS: Partial<Record<DfsPropTypeKey, StatAdapter>> =
   'Pts+Rebs': (e) => combo(e, ['points', 'rebounds']),
   'Pts+Asts': (e) => combo(e, ['points', 'assists']),
   'Rebs+Asts': (e) => combo(e, ['rebounds', 'assists']),
+  // v0.3 defensive combos
+  'Pts+Stls': (e) => combo(e, ['points', 'steals']),
+  'Pts+Blks': (e) => combo(e, ['points', 'blocks']),
+  'Stls+Blks': (e) => combo(e, ['steals', 'blocks']),
+  // v0.3 double-double / triple-double — graded as 1 (achieved) / 0 (not).
+  // Standard line is 0.5, so over=achievement, under=missed. Books treat
+  // these as binary props; numeric output keeps the gradeLegFromActual
+  // contract uniform (number vs line).
+  'Double-Double': (e) => {
+    const count = doubleDigitCategories(e);
+    return count == null ? null : count >= 2 ? 1 : 0;
+  },
+  'Triple-Double': (e) => {
+    const count = doubleDigitCategories(e);
+    return count == null ? null : count >= 3 ? 1 : 0;
+  },
 };

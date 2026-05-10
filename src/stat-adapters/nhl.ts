@@ -150,4 +150,9 @@ export const NHL_ADAPTERS: Partial<Record<DfsPropTypeKey, StatAdapter>> = {
   // ever stops being true, add an explicit `/ 100` transform here with
   // a smoke-test note.
   'Saves Percentage': goalieOnly((e) => numOrNull(e.steals)),
+  // v0.3 — Plus/Minus is a skater-only flat field that the parser fills
+  // for both regulation and overtime totals (ESPN shows the season-cum
+  // value; per-game is on the gamelog row). Goalies sometimes have a
+  // plusMinus column but it's structurally meaningless — guard it out.
+  'Plus/Minus': skaterOnly((e) => numOrNull(e.plusMinus)),
 };
