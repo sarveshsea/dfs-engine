@@ -105,7 +105,15 @@ export type DfsPropTypeKey =
   | 'Goals Against'
   | 'Saves Percentage'
   // NHL v0.3 additions
-  | 'Plus/Minus';
+  | 'Plus/Minus'
+  // Soccer v1.0 — Goals and Assists are already canonical (reused from
+  // basketball/NHL via per-league dispatch). These are soccer-specific.
+  | 'Shots'
+  | 'Shots on Target'
+  | 'Passes Completed'
+  | 'Tackles'
+  | 'Yellow Cards'
+  | 'Pass Accuracy';
 
 export const DFS_PROP_TYPE_KEYS: readonly DfsPropTypeKey[] = [
   'Points',
@@ -174,6 +182,13 @@ export const DFS_PROP_TYPE_KEYS: readonly DfsPropTypeKey[] = [
   'Runs',
   'Pitching Outs',
   'Plus/Minus',
+  // Soccer v1.0
+  'Shots',
+  'Shots on Target',
+  'Passes Completed',
+  'Tackles',
+  'Yellow Cards',
+  'Pass Accuracy',
 ] as const;
 
 /**
@@ -267,6 +282,39 @@ const NHL_ALIASES: Record<string, DfsPropTypeKey> = {
   plusminus: 'Plus/Minus',
 };
 
+/**
+ * Soccer slip variants observed on PrizePicks / Underdog soccer cards.
+ */
+const SOCCER_ALIASES: Record<string, DfsPropTypeKey> = {
+  // Shots
+  shots: 'Shots',
+  'total shots': 'Shots',
+  'shot attempts': 'Shots',
+  // Shots on Target
+  'shots on target': 'Shots on Target',
+  sot: 'Shots on Target',
+  // (Do NOT alias 'shots on goal' here — that's already canonical for
+  // NHL via DFS_PROP_TYPE_KEYS. Soccer slips that say "shots on goal"
+  // are rare; users should use SOT or "shots on target". Aliasing it
+  // here would silently misroute NHL bets.)
+  // Passes
+  passes: 'Passes Completed',
+  'completed passes': 'Passes Completed',
+  // (Do NOT alias 'pass completions' here — that's already canonical for
+  // NFL as 'Pass Completions'. Soccer slips use "Passes" or "Completed
+  // Passes"; "Pass Completions" stays NFL-specific.)
+  // Tackles
+  tackles: 'Tackles',
+  tkl: 'Tackles',
+  // Cards
+  'yellow cards': 'Yellow Cards',
+  yc: 'Yellow Cards',
+  // Pass accuracy
+  'pass accuracy': 'Pass Accuracy',
+  'pass %': 'Pass Accuracy',
+  'pass pct': 'Pass Accuracy',
+};
+
 const ALL_ALIASES: Record<string, DfsPropTypeKey> = (() => {
   const out: Record<string, DfsPropTypeKey> = {};
   for (const key of DFS_PROP_TYPE_KEYS) {
@@ -276,6 +324,9 @@ const ALL_ALIASES: Record<string, DfsPropTypeKey> = (() => {
     out[alias] = key;
   }
   for (const [alias, key] of Object.entries(NHL_ALIASES)) {
+    out[alias] = key;
+  }
+  for (const [alias, key] of Object.entries(SOCCER_ALIASES)) {
     out[alias] = key;
   }
   return out;

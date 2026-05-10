@@ -19,6 +19,7 @@ import { BASKETBALL_ADAPTERS } from './basketball';
 import { NFL_ADAPTERS } from './nfl';
 import { MLB_ADAPTERS } from './mlb';
 import { NHL_ADAPTERS } from './nhl';
+import { SOCCER_ADAPTERS } from './soccer';
 
 /**
  * Per-call options threaded through to every adapter. Most adapters
@@ -95,6 +96,13 @@ registerLeague('NCAAW', BASKETBALL_ADAPTERS);
 registerLeague('NFL', NFL_ADAPTERS);
 registerLeague('MLB', MLB_ADAPTERS);
 registerLeague('NHL', NHL_ADAPTERS);
+// v1.0 soccer — all share one table; per-league dispatch is just
+// for "which leagues do we know about" surfacing.
+registerLeague('EPL', SOCCER_ADAPTERS);
+registerLeague('MLS', SOCCER_ADAPTERS);
+registerLeague('LALIGA', SOCCER_ADAPTERS);
+registerLeague('NWSL', SOCCER_ADAPTERS);
+registerLeague('UCL', SOCCER_ADAPTERS);
 
 /**
  * Resolve the adapter table for a league. Returns null when the league

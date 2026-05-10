@@ -109,6 +109,33 @@ export interface PlayerGameLogEntryShape {
    * against a goalie row.
    */
   nhlPosition?: 'skater' | 'goalie' | null;
+  /**
+   * Soccer-specific extras (v1.0). Soccer match data shape differs
+   * enough from US-major sports that it gets its own bag rather than
+   * remapping onto the flat fields. Adapters read from here for
+   * `Shots`, `Shots on Target`, `Passes Completed`, `Tackles`,
+   * `Yellow Cards`, `Pass Accuracy`. Goals + Assists reuse the
+   * canonical flat slots (points, rebounds) for consistency with
+   * other sports — see SOCCER_ADAPTERS.
+   */
+  soccer?: PlayerGameLogSoccerShape;
+}
+
+/**
+ * Soccer-specific stats (v1.0). Populate from your match-data source
+ * (FotMob, Sofascore, ESPN soccer endpoint, etc). All optional; the
+ * adapter null-returns when a queried field is missing.
+ */
+export interface PlayerGameLogSoccerShape {
+  shots?: string;
+  shotsOnTarget?: string;
+  passesCompleted?: string;
+  passesAttempted?: string;
+  tackles?: string;
+  yellowCards?: string;
+  redCards?: string;
+  /** As a 0..1 decimal (".87") or a 0..100 percent ("87"). Adapter parses both. */
+  passAccuracy?: string;
 }
 
 /**

@@ -36,8 +36,8 @@ describe('registry — built-ins', () => {
   });
 
   test('unknown league returns null (not throws)', () => {
-    expect(getStatAdapter('EPL')).toBeNull();
     expect(getStatAdapter('CRICKET')).toBeNull();
+    expect(getStatAdapter('IPL')).toBeNull();
     expect(getStatAdapter('')).toBeNull();
   });
 });
