@@ -1,66 +1,26 @@
 {
-  "name": "@buzzr/dfs-engine",
-  "version": "1.0.0",
-  "description": "Pure-functional DFS prop grading, payouts, and stat normalization for PrizePicks/Underdog-style contests.",
+  "name": "buzzr-dfs-settlement-os",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Monorepo for Buzzr DFS Settlement OS packages.",
   "license": "MIT",
-  "author": "Sarvesh Chidambaram",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
+  "workspaces": [
+    "packages/*"
   ],
-  "scripts": {
-    "build": "tsup",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "bench": "vitest bench --run",
-    "docs": "typedoc",
-    "lint": "eslint src tests",
-    "format": "prettier --write src tests examples",
-    "format:check": "prettier --check src tests examples",
-    "prepublishOnly": "npm run typecheck && npm run lint && npm test && npm run build"
-  },
-  "keywords": [
-    "dfs",
-    "daily-fantasy",
-    "prizepicks",
-    "underdog",
-    "sports-betting",
-    "parlay",
-    "props",
-    "grading",
-    "payouts",
-    "nba",
-    "nfl",
-    "mlb",
-    "nhl",
-    "soccer",
-    "betting",
-    "settlement",
-    "typescript"
-  ],
-  "homepage": "https://github.com/sarveshsea/dfs-engine",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sarveshsea/dfs-engine.git"
-  },
-  "bugs": {
-    "url": "https://github.com/sarveshsea/dfs-engine/issues"
-  },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "eslint packages/*/src packages/*/tests",
+    "format": "prettier --write \"packages/*/{src,tests,examples}/**/*.{ts,json,md}\" \"*.{json,md}\"",
+    "format:check": "prettier --check \"packages/*/{src,tests,examples}/**/*.{ts,json,md}\" \"*.{json,md}\"",
+    "docs": "npm run docs --workspace @buzzr/dfs-engine",
+    "bench": "npm run bench --workspace @buzzr/dfs-engine",
+    "pack:smoke": "npm pack --workspaces --dry-run"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
@@ -71,9 +31,6 @@
     "typedoc": "^0.28.19",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
-    "vitest": "^2.1.9"
-  },
-  "publishConfig": {
-    "access": "public"
+    "vitest": "^4.1.6"
   }
 }

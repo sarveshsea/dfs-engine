@@ -4,3 +4,5 @@ coverage
 *.md
 package-lock.json
 tests/fixtures
+packages/dfs-engine/tests/fixtures
+packages/*/dist

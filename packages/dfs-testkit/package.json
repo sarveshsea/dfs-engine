@@ -1,0 +1,40 @@
+{
+  "name": "@buzzr/dfs-testkit",
+  "version": "2.0.0",
+  "description": "Fixture builders and mock providers for @buzzr/dfs-engine consumers.",
+  "license": "MIT",
+  "author": "Sarvesh Chidambaram",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean --treeshake --target es2022",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src tests",
+    "format": "prettier --write src tests",
+    "format:check": "prettier --check src tests"
+  },
+  "dependencies": {
+    "@buzzr/dfs-engine": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
